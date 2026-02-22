@@ -1,0 +1,13 @@
+# Entornos virtuales de Python (Backend)
+venv/
+env/
+__pycache__/
+*.pyc
+db.sqlite3
+
+# Node Modules (Frontend)
+frontend/node_modules/
+node_modules/
+
+# Variables de entorno
+.env

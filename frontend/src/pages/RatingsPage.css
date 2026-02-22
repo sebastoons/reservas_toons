@@ -1,0 +1,44 @@
+.ratings-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.rating-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.rating-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.tech-info {
+    font-weight: bold;
+    color: var(--primary-blue);
+}
+
+.feedback-area {
+    width: 100%;
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    min-height: 80px;
+}
+
+.btn-rate {
+    margin-top: 15px;
+    background-color: var(--primary-blue);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    width: 100%;
+    font-weight: 600;
+}
