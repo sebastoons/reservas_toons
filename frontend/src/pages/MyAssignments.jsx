@@ -1,43 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import api from '../api/axios';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 import './MyAssignments.css';
 
 const MyAssignments = () => {
+    const { user } = useAuth();
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // 1. Cargar las citas asignadas al técnico logueado
     const fetchAssignments = async () => {
-        try {
-            const res = await api.get('/appointments/');
-            // Filtramos en frontend o backend. Como el backend ya filtra por usuario (views.py), 
-            // aquí recibimos solo las de este técnico.
-            setAssignments(res.data);
-        } catch {
-            // CORRECCIÓN: Quitamos (error) para evitar la advertencia de "unused variable"
-            console.error("Error cargando asignaciones");
-        } finally {
-            setLoading(false);
-        }
+        const { data, error } = await supabase
+            .from('appointments')
+            .select('*')
+            .eq('technician_id', user.id)
+            .order('date', { ascending: true });
+        if (!error) setAssignments(data);
+        setLoading(false);
     };
 
     useEffect(() => {
         fetchAssignments();
     }, []);
 
-    // 2. Función para aceptar o rechazar
     const handleStatusChange = async (id, newStatus) => {
-        try {
-            await api.patch(`/appointments/${id}/status/`, {
+        const { error } = await supabase
+            .from('appointments')
+            .update({
                 status: newStatus,
                 technician_message: newStatus === 'ACCEPTED' ? 'Confirmado' : 'No disponible'
-            });
-            // Recargar la lista para ver el cambio
-            fetchAssignments(); 
-            alert(`Trabajo ${newStatus === 'ACCEPTED' ? 'ACEPTADO' : 'RECHAZADO'} correctamente`);
-        } catch {
-            // CORRECCIÓN: Quitamos (error) aquí también
+            })
+            .eq('id', id);
+        if (error) {
             alert("Error al actualizar estado");
+        } else {
+            fetchAssignments();
+            alert(`Trabajo ${newStatus === 'ACCEPTED' ? 'ACEPTADO' : 'RECHAZADO'} correctamente`);
         }
     };
 

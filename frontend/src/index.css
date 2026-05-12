@@ -20,7 +20,16 @@
 body {
   background-color: var(--bg-light);
   color: var(--text-dark);
+  /* Safe area para notch y barra de navegación Android/iOS */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
+
+/* Responsividad base */
+img, video { max-width: 100%; height: auto; }
+input, select, textarea, button { touch-action: manipulation; }
 
 button {
   cursor: pointer;

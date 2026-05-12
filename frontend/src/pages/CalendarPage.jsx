@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from '../api/axios';
+import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { ChevronLeft, ChevronRight, X, Calendar as CalIcon, CheckSquare, Square } from 'lucide-react';
 import './CalendarPage.css';
@@ -32,19 +32,16 @@ const CalendarPage = () => {
         "14:00", "15:00", "16:00", "17:00", "18:00"
     ];
 
-    // SOLUCIÓN 1: Definimos la función DENTRO del efecto.
-    // Esto elimina el error de la línea 48 y garantiza estabilidad.
     useEffect(() => {
         const loadData = async () => {
-            try {
-                const res = await api.get('/appointments/');
-                setAppointments(res.data);
-            } catch {
-                console.error("Error al cargar agenda");
-            }
+            const { data, error } = await supabase
+                .from('appointments')
+                .select('*')
+                .eq('technician_id', user.id);
+            if (!error) setAppointments(data);
         };
         loadData();
-    }, [reloadKey]); // Solo se ejecuta al montar y cuando reloadKey cambia
+    }, [reloadKey, user.id]);
 
     // SOLUCIÓN 2: Función auxiliar para cerrar el modal y limpiar datos AL MISMO TIEMPO.
     // Esto elimina la necesidad del segundo useEffect que causaba el error en la línea 54.
@@ -95,37 +92,32 @@ const CalendarPage = () => {
         }
     };
 
-    // --- GUARDAR BLOQUEO MASIVO ---
     const handleBulkBlockSubmit = async (e) => {
         e.preventDefault();
         if (selectedHours.length === 0 || !selectedDay) return;
 
         const dateStr = selectedDay.toISOString().split('T')[0];
-        
-        try {
-            const promises = selectedHours.map(hour => 
-                api.post('/appointments/', {
-                    client_name: blockType === 'VACACIONES' ? 'VACACIONES' : 'NO DISPONIBLE',
-                    work_type: blockType,
-                    date: dateStr,
-                    time: hour,
-                    duration_estimated: '1 Hora',
-                    address: 'Bloqueo de Agenda', 
-                    client_email: 'interno@bloqueo.com', 
-                    client_phone: '00000000', 
-                    technician: user.id,
-                    description: blockReason || (blockType === 'VACACIONES' ? 'Día libre' : 'No disponible'),
-                    title: blockType
-                })
-            );
+        const rows = selectedHours.map(hour => ({
+            coordinator_id: user.id,
+            technician_id: user.id,
+            client_name: blockType === 'VACACIONES' ? 'VACACIONES' : 'NO DISPONIBLE',
+            work_type: blockType,
+            date: dateStr,
+            time: hour,
+            duration_estimated: '1 Hora',
+            address: 'Bloqueo de Agenda',
+            client_email: 'interno@bloqueo.com',
+            client_phone: '00000000',
+            description: blockReason || (blockType === 'VACACIONES' ? 'Día libre' : 'No disponible'),
+        }));
 
-            await Promise.all(promises);
-            
-            alert(`Se han bloqueado ${selectedHours.length} horas correctamente.`);
-            handleCloseDayModal(); // Usamos la función segura para cerrar y limpiar
-            setReloadKey(prev => prev + 1); 
-        } catch {
+        const { error } = await supabase.from('appointments').insert(rows);
+        if (error) {
             alert("Error al guardar los bloqueos. Verifica tu conexión.");
+        } else {
+            alert(`Se han bloqueado ${selectedHours.length} horas correctamente.`);
+            handleCloseDayModal();
+            setReloadKey(prev => prev + 1);
         }
     };
 
