@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import api from '../api/axios';
-import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck } from 'lucide-react';
 import './Login.css';
@@ -8,28 +7,17 @@ import './Login.css';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { setUser } = useAuth();
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            // 1. Obtenemos el Token JWT
-            const resToken = await api.post('/token/', { email, password });
-            localStorage.setItem('token', resToken.data.access);
-
-            // 2. Obtenemos los datos del usuario (incluyendo el ROL)
-            const resUser = await api.get('/users/me/');
-            setUser(resUser.data);
-
-            // 3. Redirección inteligente basada en Rol
-            if (resUser.data.role === 'ADMIN') navigate('/dashboard');
-            else if (resUser.data.role === 'TECH') navigate('/dashboard'); // Verá su agenda propia
-            else navigate('/dashboard'); // Coordinador verá su panel de reservas
-
-        // eslint-disable-next-line no-unused-vars
-        } catch (err) {
-            alert('Credenciales incorrectas o error de conexión');
+        setError('');
+        const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+        if (authError) {
+            setError('Credenciales incorrectas o error de conexión');
+        } else {
+            navigate('/dashboard');
         }
     };
 
@@ -47,6 +35,7 @@ const Login = () => {
                         <label>Contraseña</label>
                         <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} required />
                     </div>
+                    {error && <p style={{color:'#d32f2f', fontSize:'0.85rem', margin:'0 0 8px'}}>{error}</p>}
                     <button type="submit" className="submit-btn">Entrar al Sistema</button>
                 </form>
             </div>

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api/axios';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './ReservationForm.css';
 
 const ReservationForm = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [technicians, setTechnicians] = useState([]);
     const [loading, setLoading] = useState(false);
     
@@ -26,12 +28,11 @@ const ReservationForm = () => {
     // 1. Cargar técnicos al montar el componente
     useEffect(() => {
         const fetchTechs = async () => {
-            try {
-                const res = await api.get('/users/technicians/');
-                setTechnicians(res.data);
-            } catch (error) {
-                console.error("Error cargando técnicos", error);
-            }
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('id, first_name, last_name, email')
+                .eq('role', 'TECH');
+            if (!error) setTechnicians(data);
         };
         fetchTechs();
     }, []);
@@ -49,16 +50,26 @@ const ReservationForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        try {
-            // Enviamos los datos al endpoint de citas
-            await api.post('/appointments/', formData);
-            alert('¡Solicitud enviada con éxito!');
-            navigate('/dashboard'); // Volver al calendario para ver la reserva
-        } catch (error) {
-            console.error(error);
+        const { error } = await supabase.from('appointments').insert({
+            coordinator_id: user.id,
+            technician_id: formData.technician,
+            client_name: formData.client_name,
+            client_email: formData.client_email,
+            client_phone: formData.client_phone,
+            address: formData.address,
+            work_type: formData.work_type,
+            description: formData.description,
+            assigned_by_name: formData.assigned_by_name,
+            date: formData.date,
+            time: formData.time,
+            duration_estimated: formData.duration_estimated,
+        });
+        setLoading(false);
+        if (error) {
             alert('Error al crear la reserva. Verifique los datos.');
-        } finally {
-            setLoading(false);
+        } else {
+            alert('¡Solicitud enviada con éxito!');
+            navigate('/dashboard');
         }
     };
 
