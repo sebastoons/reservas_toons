@@ -1,29 +1,27 @@
 :root {
-  --bg:          #0d0d0d;
-  --bg-card:     #161616;
-  --bg-card2:    #1e1e1e;
-  --gold:        #d4a843;
-  --gold-dim:    #a07830;
-  --border:      #2a2a2a;
-  --text:        #f0f0f0;
-  --text-muted:  #888888;
+  --bg:          #0a0f1e;
+  --bg-card:     #111827;
+  --bg-card2:    #1e293b;
+  --primary:     #2563eb;
+  --primary-lit: #3b82f6;
+  --primary-dim: #1d4ed8;
+  --border:      #1e293b;
+  --text:        #f1f5f9;
+  --text-muted:  #94a3b8;
   --green:       #22c55e;
   --orange:      #f59e0b;
   --red:         #ef4444;
   --blue:        #3b82f6;
-  --purple:      #a855f7;
+  --purple:      #7c3aed;
+  --gray:        #475569;
   --transition:  all 0.2s ease;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+* { box-sizing: border-box; margin: 0; padding: 0;
+    font-family: 'Segoe UI', system-ui, sans-serif; }
 
 body {
-  background-color: var(--bg);
+  background: var(--bg);
   color: var(--text);
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -32,9 +30,3 @@ body {
 button { cursor: pointer; border: none; outline: none; }
 img, video { max-width: 100%; height: auto; }
 input, select, textarea, button { touch-action: manipulation; }
-
-button {
-  cursor: pointer;
-  border: none;
-  outline: none;
-}
