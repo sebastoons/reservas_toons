@@ -9,6 +9,7 @@ const MyAssignments = () => {
     const [loading, setLoading] = useState(true);
 
     const fetchAssignments = async () => {
+        if (!user?.id) return;
         const { data, error } = await supabase
             .from('appointments')
             .select('*')
