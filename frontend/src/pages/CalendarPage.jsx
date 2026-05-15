@@ -1,312 +1,255 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { ChevronLeft, ChevronRight, X, Calendar as CalIcon, CheckSquare, Square } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowLeft, X } from 'lucide-react';
 import './CalendarPage.css';
 
-const CalendarPage = () => {
-    const { user } = useAuth();
-    const [appointments, setAppointments] = useState([]);
-    const [currentDate, setCurrentDate] = useState(new Date());
-    const [selectedDay, setSelectedDay] = useState(null); // Modal de Agenda del Día
-    const [selectedEvent, setSelectedEvent] = useState(null); // Modal de Detalle de Servicio
-    const [reloadKey, setReloadKey] = useState(0);
-    
-    // Estado para selección múltiple de horas
-    const [selectedHours, setSelectedHours] = useState([]); 
-    const [blockType, setBlockType] = useState('BLOQUEO');
-    const [blockReason, setBlockReason] = useState('');
+const WORK_HOURS = [
+  "09:00","10:00","11:00","12:00",
+  "13:00","14:00","15:00","16:00","17:00","18:00"
+];
 
-    // Diccionario de colores
-    const STATUS_MAP = {
-        'PENDING': '#ff9800',
-        'ACCEPTED': '#2e7d32',
-        'REJECTED': '#d32f2f',
-        'COMPLETED': '#1565c0',
-        'BLOQUEO': '#757575',
-        'VACACIONES': '#9c27b0'
-    };
-
-    const WORK_HOURS = [
-        "09:00", "10:00", "11:00", "12:00", "13:00", 
-        "14:00", "15:00", "16:00", "17:00", "18:00"
-    ];
-
-    useEffect(() => {
-        if (!user?.id) return;
-        const loadData = async () => {
-            const { data, error } = await supabase
-                .from('appointments')
-                .select('*')
-                .eq('technician_id', user.id);
-            if (!error) setAppointments(data);
-        };
-        loadData();
-    }, [reloadKey, user?.id]);
-
-    // SOLUCIÓN 2: Función auxiliar para cerrar el modal y limpiar datos AL MISMO TIEMPO.
-    // Esto elimina la necesidad del segundo useEffect que causaba el error en la línea 54.
-    const handleCloseDayModal = () => {
-        setSelectedDay(null);
-        setSelectedHours([]); // Limpieza inmediata
-        setBlockReason('');
-    };
-
-    // Lógica de Calendario
-    const getDaysInMonth = (date) => {
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        let firstDayIndex = new Date(year, month, 1).getDay();
-        firstDayIndex = (firstDayIndex === 0 ? 6 : firstDayIndex - 1); 
-
-        const daysArray = [];
-        for (let i = 0; i < firstDayIndex; i++) daysArray.push(null);
-        for (let i = 1; i <= daysInMonth; i++) daysArray.push(new Date(year, month, i));
-        return daysArray;
-    };
-
-    const getEventsForDate = (dateObj) => {
-        if (!dateObj) return [];
-        const dateStr = dateObj.toISOString().split('T')[0];
-        return appointments.filter(app => app.date === dateStr);
-    };
-
-    // --- MANEJO DE SELECCIÓN MÚLTIPLE ---
-    const toggleHourSelection = (hour) => {
-        if (selectedHours.includes(hour)) {
-            setSelectedHours(selectedHours.filter(h => h !== hour));
-        } else {
-            setSelectedHours([...selectedHours, hour]);
-        }
-    };
-
-    const handleSelectFullDay = () => {
-        const dayEvents = getEventsForDate(selectedDay);
-        const busyHours = dayEvents.map(ev => ev.time.substring(0, 5));
-        const freeHours = WORK_HOURS.filter(h => !busyHours.some(bh => bh.startsWith(h)));
-        
-        if (selectedHours.length === freeHours.length) {
-            setSelectedHours([]); 
-        } else {
-            setSelectedHours(freeHours); 
-        }
-    };
-
-    const handleBulkBlockSubmit = async (e) => {
-        e.preventDefault();
-        if (selectedHours.length === 0 || !selectedDay) return;
-
-        const dateStr = selectedDay.toISOString().split('T')[0];
-        const rows = selectedHours.map(hour => ({
-            coordinator_id: user.id,
-            technician_id: user.id,
-            client_name: blockType === 'VACACIONES' ? 'VACACIONES' : 'NO DISPONIBLE',
-            work_type: blockType,
-            date: dateStr,
-            time: hour,
-            duration_estimated: '1 Hora',
-            address: 'Bloqueo de Agenda',
-            client_email: 'interno@bloqueo.com',
-            client_phone: '00000000',
-            description: blockReason || (blockType === 'VACACIONES' ? 'Día libre' : 'No disponible'),
-        }));
-
-        const { error } = await supabase.from('appointments').insert(rows);
-        if (error) {
-            alert("Error al guardar los bloqueos. Verifica tu conexión.");
-        } else {
-            alert(`Se han bloqueado ${selectedHours.length} horas correctamente.`);
-            handleCloseDayModal();
-            setReloadKey(prev => prev + 1);
-        }
-    };
-
-    const calendarDays = getDaysInMonth(currentDate);
-    const weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-
-    return (
-        <div className="calendar-container">
-            {/* Sidebar */}
-            <aside className="calendar-sidebar" style={{width: '260px'}}>
-                <h3 className="sidebar-title">Mi Agenda</h3>
-                <div style={{fontSize:'0.9rem', color:'#666', marginBottom:'20px'}}>
-                    <p>Gestiona tu disponibilidad seleccionando días y bloqueando horas o días completos.</p>
-                </div>
-                
-                <div className="filter-group">
-                    <h4 style={{fontSize:'0.85rem', marginBottom:'10px'}}>Referencias:</h4>
-                    <div className="legend-item"><div className="dot" style={{background: STATUS_MAP.ACCEPTED}}></div> Servicios</div>
-                    <div className="legend-item"><div className="dot" style={{background: STATUS_MAP.BLOQUEO}}></div> No Disponible</div>
-                    <div className="legend-item"><div className="dot" style={{background: STATUS_MAP.VACACIONES}}></div> Vacaciones</div>
-                </div>
-            </aside>
-
-            {/* Calendario */}
-            <div className="calendar-main">
-                <div className="calendar-header">
-                    <h2 style={{textTransform: 'capitalize'}}>
-                        {currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
-                    </h2>
-                    <div style={{display: 'flex', gap: '5px'}}>
-                        <button className="nav-btn" onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}><ChevronLeft size={20}/></button>
-                        <button className="nav-btn" onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}><ChevronRight size={20}/></button>
-                    </div>
-                </div>
-
-                <div className="calendar-grid">
-                    {weekDays.map(d => <div key={d} className="weekday-label">{d}</div>)}
-                    
-                    {calendarDays.map((date, index) => {
-                        if (!date) return <div key={`empty-${index}`} className="calendar-day day-unavailable"></div>;
-                        
-                        const dayEvents = getEventsForDate(date);
-                        const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-
-                        return (
-                            <div 
-                                key={date.toISOString()} 
-                                className={`calendar-day ${isWeekend ? 'day-unavailable' : ''}`}
-                                onClick={() => setSelectedDay(date)}
-                            >
-                                <div className="day-header">
-                                    <span>{date.getDate()}</span>
-                                </div>
-                                {dayEvents.map(ev => (
-                                    <div 
-                                        key={ev.id} 
-                                        className="event-pill"
-                                        style={{ backgroundColor: STATUS_MAP[ev.work_type] || STATUS_MAP[ev.status] || '#ccc' }}
-                                    >
-                                        {ev.time.substring(0,5)} {ev.work_type === 'BLOQUEO' ? 'Bloqueado' : ev.client_name}
-                                    </div>
-                                ))}
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* MODAL 1: AGENDA DEL DÍA */}
-            {selectedDay && (
-                <div className="modal-overlay" onClick={handleCloseDayModal}>
-                    <div className="day-modal-content" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <div>
-                                <h3 style={{margin:0}}>
-                                    {selectedDay.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
-                                </h3>
-                                <p style={{fontSize:'0.8rem', color:'#666', margin:0}}>Selecciona las horas para bloquear o ver detalles.</p>
-                            </div>
-                            <button onClick={handleCloseDayModal}><X size={20}/></button>
-                        </div>
-
-                        <div className="bulk-actions-header">
-                            <button className="btn-small-outline" onClick={handleSelectFullDay}>
-                                <CalIcon size={14}/> {selectedHours.length > 0 ? 'Deseleccionar todo' : 'Seleccionar Todo el Día'}
-                            </button>
-                        </div>
-
-                        <div className="day-agenda">
-                            {WORK_HOURS.map(hour => {
-                                const eventAtHour = getEventsForDate(selectedDay).find(ev => ev.time.startsWith(hour));
-                                const isSelected = selectedHours.includes(hour);
-
-                                return (
-                                    <div 
-                                        key={hour} 
-                                        className={`hour-slot ${isSelected ? 'slot-selected' : ''}`}
-                                        onClick={() => !eventAtHour && toggleHourSelection(hour)}
-                                    >
-                                        <div className="hour-label">{hour}</div>
-                                        
-                                        <div className="hour-content">
-                                            {eventAtHour ? (
-                                                <div 
-                                                    className="event-pill-large" 
-                                                    style={{ 
-                                                        backgroundColor: STATUS_MAP[eventAtHour.work_type] || STATUS_MAP[eventAtHour.status] 
-                                                    }}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setSelectedEvent(eventAtHour); 
-                                                    }}
-                                                >
-                                                    {eventAtHour.work_type === 'BLOQUEO' ? '⛔ No Disponible' : 
-                                                     eventAtHour.work_type === 'VACACIONES' ? '🏖️ Vacaciones' : 
-                                                     `🔧 ${eventAtHour.client_name} - ${eventAtHour.work_type}`}
-                                                </div>
-                                            ) : (
-                                                <span style={{color: '#aaa', fontSize:'0.85rem'}}>Disponible</span>
-                                            )}
-                                        </div>
-
-                                        {!eventAtHour && (
-                                            <div className="hour-check">
-                                                {isSelected ? <CheckSquare size={20} color="var(--primary-blue)"/> : <Square size={20} color="#ddd"/>}
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {/* PANEL DE ACCIÓN MASIVA */}
-                        {selectedHours.length > 0 && (
-                            <div className="bulk-action-panel">
-                                <h4>Bloquear {selectedHours.length} horas seleccionadas:</h4>
-                                <form onSubmit={handleBulkBlockSubmit}>
-                                    <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'10px'}}>
-                                        <select 
-                                            className="form-control"
-                                            value={blockType}
-                                            onChange={e => setBlockType(e.target.value)}
-                                        >
-                                            <option value="BLOQUEO">No Disponible</option>
-                                            <option value="VACACIONES">Vacaciones</option>
-                                        </select>
-                                        <input 
-                                            type="text" 
-                                            className="form-control"
-                                            placeholder="Motivo (Opcional)"
-                                            value={blockReason}
-                                            onChange={e => setBlockReason(e.target.value)}
-                                        />
-                                    </div>
-                                    <button type="submit" className="btn-primary full-width">Confirmar Bloqueo</button>
-                                </form>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* MODAL 2: DETALLES DEL SERVICIO */}
-            {selectedEvent && (
-                <div className="modal-overlay z-high" onClick={() => setSelectedEvent(null)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3>Detalles del Servicio</h3>
-                            <button onClick={() => setSelectedEvent(null)}><X size={20}/></button>
-                        </div>
-                        
-                        <div className="modal-body-detail">
-                            <p><strong>Cliente:</strong> {selectedEvent.client_name}</p>
-                            <p><strong>Fecha:</strong> {selectedEvent.date} a las {selectedEvent.time}</p>
-                            <p><strong>Dirección:</strong> {selectedEvent.address}</p>
-                            <p><strong>Técnico:</strong> {selectedEvent.technician_detail?.first_name || 'Tú'}</p>
-                            <p><strong>Estado:</strong> {selectedEvent.status}</p>
-                            <hr/>
-                            <p className="desc-box">{selectedEvent.description || "Sin descripción"}</p>
-                        </div>
-                        <div style={{textAlign:'right', marginTop:'15px'}}>
-                            <button className="btn-close" onClick={() => setSelectedEvent(null)}>Cerrar</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
+const STATUS_COLOR = {
+  PENDING: '#f59e0b', ACCEPTED: '#22c55e', REJECTED: '#ef4444',
+  COMPLETED: '#3b82f6', BLOQUEO: '#6b7280', VACACIONES: '#a855f7'
 };
 
-export default CalendarPage;
+const WORK_LABEL = {
+  INST:'Instalación', MANT:'Mantención', DESINST:'Desinstalación',
+  REPAR:'Reparación', BLOQUEO:'No Disponible', VACACIONES:'Vacaciones'
+};
+
+function getWeekDays(baseDate) {
+  const d = new Date(baseDate);
+  const day = d.getDay() === 0 ? 6 : d.getDay() - 1; // lunes=0
+  d.setDate(d.getDate() - day);
+  return Array.from({ length: 7 }, (_, i) => {
+    const dd = new Date(d);
+    dd.setDate(d.getDate() + i);
+    return dd;
+  });
+}
+
+function dateStr(d) { return d.toISOString().split('T')[0]; }
+
+function initials(first, last) {
+  return `${(first || '?')[0]}${(last || '')[0] || ''}`.toUpperCase();
+}
+
+// ─── VISTA: LISTA DE TÉCNICOS ──────────────────────────────────────────────
+function TechList({ onSelect }) {
+  const [techs, setTechs] = useState([]);
+
+  useEffect(() => {
+    supabase.from('profiles').select('*').eq('role', 'TECH')
+      .then(({ data }) => setTechs(data || []));
+  }, []);
+
+  return (
+    <div className="tech-list-container">
+      <h2 className="section-title">Selecciona un técnico</h2>
+      <p className="section-sub">Elige un profesional para ver su disponibilidad</p>
+      <div className="tech-cards">
+        {techs.map(t => (
+          <button key={t.id} className="tech-card" onClick={() => onSelect(t)}>
+            <div className="tech-avatar">{initials(t.first_name, t.last_name)}</div>
+            <div className="tech-info">
+              <span className="tech-name">{t.first_name} {t.last_name}</span>
+              <span className="tech-email">{t.email}</span>
+            </div>
+            <ChevronRight size={18} className="tech-arrow" />
+          </button>
+        ))}
+        {techs.length === 0 && (
+          <p style={{color:'var(--text-muted)', textAlign:'center', padding:'40px 0'}}>
+            No hay técnicos registrados aún.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── VISTA: HORARIO DE UN TÉCNICO ─────────────────────────────────────────
+function TechSchedule({ tech, onBack, isOwnSchedule }) {
+  const [weekBase, setWeekBase] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState(new Date());
+  const [appointments, setAppointments] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const week = getWeekDays(weekBase);
+
+  const loadAppointments = useCallback(async () => {
+    const from = dateStr(week[0]);
+    const to   = dateStr(week[6]);
+    const { data } = await supabase
+      .from('appointments')
+      .select('*')
+      .eq('technician_id', tech.id)
+      .gte('date', from)
+      .lte('date', to);
+    setAppointments(data || []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tech.id, weekBase]);
+
+  useEffect(() => { loadAppointments(); }, [loadAppointments]);
+
+  const eventsForDay = (d) =>
+    appointments.filter(a => a.date === dateStr(d));
+
+  const eventAtHour = (d, hour) =>
+    eventsForDay(d).find(a => a.time?.substring(0,5) === hour);
+
+  const prevWeek = () => { const d = new Date(weekBase); d.setDate(d.getDate()-7); setWeekBase(d); };
+  const nextWeek = () => { const d = new Date(weekBase); d.setDate(d.getDate()+7); setWeekBase(d); };
+
+  const DAY_NAMES = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const todayStr = dateStr(new Date());
+
+  const morning = WORK_HOURS.filter(h => parseInt(h) < 13);
+  const afternoon = WORK_HOURS.filter(h => parseInt(h) >= 13);
+
+  return (
+    <div className="schedule-container">
+      {/* HEADER */}
+      <div className="schedule-header">
+        {onBack && (
+          <button className="btn-back" onClick={onBack}>
+            <ArrowLeft size={18}/> Técnicos
+          </button>
+        )}
+        <div className="tech-header-info">
+          <div className="tech-avatar sm">{initials(tech.first_name, tech.last_name)}</div>
+          <div>
+            <div className="tech-header-name">{tech.first_name} {tech.last_name}</div>
+            <div className="tech-header-sub">{isOwnSchedule ? 'Tu agenda' : 'Horario del técnico'}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* SEMANA DESLIZABLE */}
+      <div className="week-nav">
+        <button className="nav-btn" onClick={prevWeek}><ChevronLeft size={18}/></button>
+        <div className="week-days">
+          {week.map((d, i) => {
+            const ds = dateStr(d);
+            const isSelected = ds === dateStr(selectedDay);
+            const isToday = ds === todayStr;
+            const hasEvents = eventsForDay(d).length > 0;
+            return (
+              <button
+                key={ds}
+                className={`week-day-btn ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''}`}
+                onClick={() => setSelectedDay(d)}
+              >
+                <span className="wday-label">{DAY_NAMES[i]}</span>
+                <span className="wday-num">{d.getDate()}</span>
+                {hasEvents && <span className="wday-dot"/>}
+              </button>
+            );
+          })}
+        </div>
+        <button className="nav-btn" onClick={nextWeek}><ChevronRight size={18}/></button>
+      </div>
+
+      {/* FECHA SELECCIONADA */}
+      <div className="day-title">
+        {selectedDay.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long' })}
+      </div>
+
+      {/* SLOTS */}
+      <div className="slots-section">
+        <div className="slot-group-label">Mañana</div>
+        <div className="slot-grid">
+          {morning.map(hour => {
+            const ev = eventAtHour(selectedDay, hour);
+            return (
+              <button
+                key={hour}
+                className={`slot-btn ${ev ? 'slot-occupied' : 'slot-free'}`}
+                onClick={() => ev && setSelectedEvent(ev)}
+                style={ev ? { borderColor: STATUS_COLOR[ev.work_type] || STATUS_COLOR[ev.status] } : {}}
+              >
+                <span className="slot-time">{hour}</span>
+                {ev && <span className="slot-label">{WORK_LABEL[ev.work_type] || ev.client_name}</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="slot-group-label">Tarde</div>
+        <div className="slot-grid">
+          {afternoon.map(hour => {
+            const ev = eventAtHour(selectedDay, hour);
+            return (
+              <button
+                key={hour}
+                className={`slot-btn ${ev ? 'slot-occupied' : 'slot-free'}`}
+                onClick={() => ev && setSelectedEvent(ev)}
+                style={ev ? { borderColor: STATUS_COLOR[ev.work_type] || STATUS_COLOR[ev.status] } : {}}
+              >
+                <span className="slot-time">{hour}</span>
+                {ev && <span className="slot-label">{WORK_LABEL[ev.work_type] || ev.client_name}</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* MODAL DETALLE */}
+      {selectedEvent && (
+        <div className="modal-overlay" onClick={() => setSelectedEvent(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Detalle del servicio</h3>
+              <button onClick={() => setSelectedEvent(null)}><X size={18}/></button>
+            </div>
+            <div className="modal-body-detail">
+              <p><strong>Cliente:</strong> {selectedEvent.client_name}</p>
+              <p><strong>Fecha:</strong> {selectedEvent.date} — {selectedEvent.time?.substring(0,5)}</p>
+              <p><strong>Dirección:</strong> {selectedEvent.address}</p>
+              <p><strong>Tipo:</strong> {WORK_LABEL[selectedEvent.work_type] || selectedEvent.work_type}</p>
+              <p>
+                <strong>Estado: </strong>
+                <span style={{color: STATUS_COLOR[selectedEvent.status], fontWeight:700}}>
+                  {selectedEvent.status}
+                </span>
+              </p>
+              {selectedEvent.description && (
+                <p className="desc-box">{selectedEvent.description}</p>
+              )}
+            </div>
+            <div style={{textAlign:'right', marginTop:'16px'}}>
+              <button className="btn-close" onClick={() => setSelectedEvent(null)}>Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────
+export default function CalendarPage() {
+  const { user } = useAuth();
+  const [selectedTech, setSelectedTech] = useState(null);
+
+  if (!user) return null;
+
+  // TÉCNICO: ve su propio horario directo
+  if (user.role === 'TECH') {
+    return <TechSchedule tech={user} isOwnSchedule />;
+  }
+
+  // COORDINADOR / ADMIN: flujo lista → horario
+  if (!selectedTech) {
+    return <TechList onSelect={setSelectedTech} />;
+  }
+
+  return (
+    <TechSchedule
+      tech={selectedTech}
+      onBack={() => setSelectedTech(null)}
+    />
+  );
+}
