@@ -36,18 +36,13 @@ const MainLayout = () => {
           )}
         </nav>
 
-        <div className="header-right" style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-          <div style={{textAlign: 'right', fontSize: '0.8rem'}}>
-             <div style={{fontWeight: 'bold'}}>{user?.first_name} {user?.last_name}</div>
-             <div style={{opacity: 0.8}}>{user?.role}</div>
+        <div className="header-right" style={{display:'flex', alignItems:'center', gap:'14px'}}>
+          <div style={{textAlign:'right', fontSize:'0.78rem'}}>
+            <div style={{fontWeight:'700', color:'var(--text)'}}>{user?.first_name} {user?.last_name}</div>
+            <div style={{color:'var(--gold)', fontSize:'0.72rem', textTransform:'uppercase', letterSpacing:'0.05em'}}>{user?.role}</div>
           </div>
-          
-          <button 
-             onClick={logout} 
-             style={{background: 'transparent', color: 'white', border: 'none', cursor: 'pointer'}} 
-             title="Cerrar Sesión"
-          >
-             <LogOut size={20} />
+          <button onClick={logout} style={{background:'transparent', color:'var(--text-muted)', border:'none', cursor:'pointer'}} title="Cerrar Sesión">
+            <LogOut size={18} />
           </button>
         </div>
       </header>

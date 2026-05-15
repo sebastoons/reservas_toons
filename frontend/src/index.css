@@ -1,13 +1,18 @@
 :root {
-  --primary-blue: #3f51b5;      /* Azul ShiftSync */
-  --primary-green: #4caf50;     /* Verde Workflow Agenda */
-  --bg-light: #f4f7f9;
-  --white: #ffffff;
-  --text-dark: #333333;
-  --text-muted: #666666;
-  --border-color: #e0e0e0;
-  --error-red: #f44336;
-  --transition: all 0.3s ease;
+  --bg:          #0d0d0d;
+  --bg-card:     #161616;
+  --bg-card2:    #1e1e1e;
+  --gold:        #d4a843;
+  --gold-dim:    #a07830;
+  --border:      #2a2a2a;
+  --text:        #f0f0f0;
+  --text-muted:  #888888;
+  --green:       #22c55e;
+  --orange:      #f59e0b;
+  --red:         #ef4444;
+  --blue:        #3b82f6;
+  --purple:      #a855f7;
+  --transition:  all 0.2s ease;
 }
 
 * {
@@ -18,16 +23,13 @@
 }
 
 body {
-  background-color: var(--bg-light);
-  color: var(--text-dark);
-  /* Safe area para notch y barra de navegación Android/iOS */
+  background-color: var(--bg);
+  color: var(--text);
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
 }
 
-/* Responsividad base */
+button { cursor: pointer; border: none; outline: none; }
 img, video { max-width: 100%; height: auto; }
 input, select, textarea, button { touch-action: manipulation; }
 
