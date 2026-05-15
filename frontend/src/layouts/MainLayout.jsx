@@ -13,12 +13,11 @@ const MainLayout = () => {
   const [error, setError]         = useState('');
   const [loading, setLoading]     = useState(false);
   const [dark, setDark]           = useState(() =>
-    localStorage.getItem('theme') !== 'light'
+    window.matchMedia('(prefers-color-scheme: dark)').matches
   );
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-    localStorage.setItem('theme', dark ? 'dark' : 'light');
   }, [dark]);
 
   // Cerrar modal si ya está logueado
