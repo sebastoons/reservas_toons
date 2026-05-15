@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Calendar, LogOut, LogIn, Sun, Moon, X } from 'lucide-react';
+import { LogOut, LogIn, Sun, Moon, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import './MainLayout.css';
@@ -36,7 +36,7 @@ const MainLayout = () => {
     <div className="layout-container">
       <header className="main-header">
         <div className="header-left">
-          <Calendar size={20} color="var(--primary-lit)" />
+          <div className="logo-mark">ST</div>
           <span className="logo-text">ServiTrak</span>
         </div>
 

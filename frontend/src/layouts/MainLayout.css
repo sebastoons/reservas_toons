@@ -10,7 +10,16 @@
 }
 
 .header-left { display: flex; align-items: center; gap: 10px; }
-.logo-text { font-size: 1.2rem; font-weight: 800; color: var(--text); letter-spacing: 0.02em; }
+
+.logo-mark {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-lit));
+  color: #fff; font-weight: 900; font-size: 0.82rem;
+  display: flex; align-items: center; justify-content: center;
+  letter-spacing: -0.02em; flex-shrink: 0;
+}
+
+.logo-text { font-size: 1.15rem; font-weight: 800; color: var(--text); letter-spacing: 0.01em; }
 
 .header-right { display: flex; align-items: center; gap: 10px; }
 
