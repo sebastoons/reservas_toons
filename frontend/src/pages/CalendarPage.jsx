@@ -39,12 +39,14 @@ function TechList({ onSelect }) {
   return (
     <div className="tech-list-container">
       <div className="tech-list-hero">
+        <div className="section-badge">Disponibilidad en tiempo real</div>
         <h2 className="section-title">Nuestros Técnicos</h2>
-        <p className="section-sub">Selecciona un técnico para ver su disponibilidad</p>
+        <p className="section-sub">Selecciona un técnico para consultar su disponibilidad</p>
       </div>
       <div className="tech-grid">
         {techs.map(t => (
           <button key={t.id} className="tech-circle-card" onClick={() => onSelect(t)}>
+            <div className="tech-avail-dot" title="Disponible hoy"/>
             <div className="tech-circle-avatar">{initials(t.first_name, t.last_name)}</div>
             <span className="tech-circle-name">{t.first_name} {t.last_name}</span>
             <span className="tech-circle-role">Técnico</span>
@@ -148,20 +150,36 @@ function TechSchedule({ tech, onBack, canEdit }) {
   const renderSlot = (hour) => {
     const ev = evAtHour(selectedDay, hour);
     const isBlock = ev && BLOCK_TYPES.includes(ev.work_type);
-    if (!canEdit && isBlock) return null;
+
+    // Bloqueado — coordinador ve indicador visual pero no puede editar
+    if (!canEdit && isBlock) return (
+      <div key={hour} className="slot-btn slot-blocked-public">
+        <span className="slot-time">{hour}</span>
+        <span className="slot-label">No disponible</span>
+      </div>
+    );
+
+    // Libre
     if (!ev) return (
-      <button key={hour} className="slot-btn slot-free" onClick={() => handleSlotClick(hour)}>
+      <button key={hour}
+        className={`slot-btn slot-free${canEdit ? ' slot-editable' : ''}`}
+        onClick={() => handleSlotClick(hour)}>
         <span className="slot-time">{hour}</span>
         {canEdit && <span className="slot-hint">Disponible</span>}
       </button>
     );
+
+    // Bloqueado — técnico/admin puede desbloquear
     if (isBlock) return (
-      <button key={hour} className={`slot-btn slot-blocked${canEdit?' slot-editable':''}`}
+      <button key={hour}
+        className={`slot-btn slot-blocked${canEdit ? ' slot-editable' : ''}`}
         onClick={() => handleSlotClick(hour)}>
         <span className="slot-time">{hour}</span>
         <span className="slot-label">No disponible</span>
       </button>
     );
+
+    // Cita real
     return (
       <button key={hour} className="slot-btn slot-occupied"
         style={{ borderColor: STATUS_COLOR[ev.status] || STATUS_COLOR[ev.work_type] }}
