@@ -1,450 +1,315 @@
 .calendar-container {
-    display: flex;
-    gap: 20px;
-    padding: 20px;
-    max-width: 1400px;
-    margin: 0 auto;
-    height: 90vh; /* Altura completa */
+  display: flex;
+  gap: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-/* Barra lateral (futuro filtro de técnicos) */
+/* SIDEBAR */
 .calendar-sidebar {
-    width: 250px;
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    height: fit-content;
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 18px;
+  border-radius: 12px;
+  height: fit-content;
 }
 
 .sidebar-title {
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin-bottom: 15px;
-    color: var(--text-dark);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 14px;
 }
 
-/* Área principal del calendario */
+.filter-group h4 { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* CALENDARIO PRINCIPAL */
 .calendar-main {
-    flex: 1;
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
+.calendar-header h2 { color: var(--text); font-size: 1.1rem; font-weight: 700; }
+
+.nav-btn {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.nav-btn:hover { border-color: var(--gold); color: var(--gold); }
+
 .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    flex: 1; /* Ocupa el espacio restante */
-    overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  flex: 1;
 }
 
 .weekday-label {
-    background: #f8f9fa;
-    padding: 10px;
-    text-align: center;
-    font-weight: 700;
-    color: #555;
-    border-bottom: 1px solid #e0e0e0;
-    border-right: 1px solid #e0e0e0;
+  background: var(--bg-card2);
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
 }
 
-/* CELDAS DEL CALENDARIO */
 .calendar-day {
-    min-height: 100px;
-    padding: 5px;
-    border-bottom: 1px solid #e0e0e0;
-    border-right: 1px solid #e0e0e0;
-    background: white; /* Por defecto blanco (Disponible) */
-    cursor: pointer;
-    transition: background 0.2s;
-    position: relative;
+  min-height: 90px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
 }
 
-.calendar-day:hover {
-    background-color: #f0f7ff; /* Azul muy suave al pasar mouse */
-}
+.calendar-day:hover { background: var(--bg-card2); }
 
-/* Días No Disponibles (Fines de semana o pasados) */
 .day-unavailable {
-    background-color: #f5f5f5; /* Gris */
-    color: #999;
+  background: rgba(255,255,255,0.02);
+  cursor: default;
 }
+
+.day-unavailable:hover { background: rgba(255,255,255,0.02); }
 
 .day-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 5px;
-    padding: 0 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0 2px;
+  margin-bottom: 4px;
 }
 
-/* Eventos (Barras de colores) */
 .event-pill {
-    font-size: 0.75rem;
-    padding: 3px 6px;
-    margin-bottom: 2px;
-    border-radius: 4px;
-    color: white;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  font-size: 0.7rem;
+  padding: 2px 5px;
+  margin-bottom: 2px;
+  border-radius: 4px;
+  color: #000;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* MODAL DE DÍA (Estilo Google Calendar) */
-.day-modal-content {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    width: 500px;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-}
-
-.hour-slot {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.hour-slot:hover {
-    background-color: #f9f9f9;
-}
-
-.hour-label {
-    width: 60px;
-    font-weight: bold;
-    color: #666;
-}
-
-.hour-content {
-    flex: 1;
-    min-height: 20px;
-    display: flex;
-    gap: 5px;
-}
-
-/* Formulario dentro del modal */
-.blocking-form {
-    background: #f0f4ff;
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 10px;
-    border: 1px solid #dae2fc;
-}
-
-.btn-vacation {
-    background-color: #9c27b0;
-    color: white;
-}
-
-.day-number {
-    font-size: 0.9rem;
-    font-weight: bold;
-    color: #444;
-    margin-bottom: 5px;
-    display: block;
-}
-
-/* Estilos de las Tarjetas de Evento (Las "barras" de colores) */
-.event-card {
-    padding: 4px 8px;
-    margin-bottom: 4px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    color: white;
-    cursor: pointer;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: transform 0.1s;
-}
-
-.event-card:hover {
-    transform: scale(1.02);
-    filter: brightness(0.95);
-}
-
-/* Colores según estado (Coherencia ShiftSync) */
-.bg-PENDING { background-color: #ff9800; } /* Naranja */
-.bg-ACCEPTED { background-color: var(--primary-green); } /* Verde */
-.bg-COMPLETED { background-color: var(--primary-blue); } /* Azul */
-.bg-REJECTED { background-color: #f44336; text-decoration: line-through; opacity: 0.7; }
-
-/* Modal de Detalles */
+/* MODAL OVERLAY */
 .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 16px;
 }
 
-.modal-content {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    width: 400px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+.z-high { z-index: 2000; }
+
+/* MODAL DÍA */
+.day-modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 22px;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
 }
 
-.day-weekend {
-    background-color: #f5f5f5; /* Gris claro para fines de semana */
-}
-
-.weekend-indicator {
-    font-size: 0.7rem;
-    color: #999;
-    text-align: center;
-    margin-top: 10px;
-    font-style: italic;
-}
-
-.btn-block-schedule {
-    width: 100%;
-    background-color: #e0e0e0;
-    color: #333;
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 6px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-block-schedule:hover {
-    background-color: #d6d6d6;
-    border-color: #bbb;
-}
-
-/* Estilos mejorados para el Modal */
 .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
 }
 
-.modal-body {
-    font-size: 0.95rem;
-    line-height: 1.6;
-}
+.modal-header h3 { color: var(--text); font-size: 1rem; font-weight: 700; text-transform: capitalize; }
+.modal-header button { background: transparent; color: var(--text-muted); padding: 2px; }
+.modal-header button:hover { color: var(--text); }
 
-.detail-row {
-    display: flex;
-    margin-bottom: 12px;
-    border-bottom: 1px solid #f9f9f9;
-    padding-bottom: 8px;
-}
-
-.detail-row .label {
-    width: 100px;
-    font-weight: 600;
-    color: #555;
-    flex-shrink: 0;
-}
-
-.detail-row .value {
-    color: #000;
-    font-weight: 500;
-}
-
-.status-pill {
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-.description-text {
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: 6px;
-    color: #444;
-    white-space: pre-wrap; /* Mantiene saltos de línea */
-}
-
-.modal-footer {
-    margin-top: 20px;
-    text-align: right;
-}
-
-.btn-close {
-    background: #eee;
-    padding: 8px 20px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-/* Inputs del modal de bloqueo */
-.form-group-modal {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.form-group-modal input {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.btn-primary {
-    background-color: var(--primary-blue);
-    color: white;
-    padding: 8px 15px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-}
-
-.btn-text {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #666;
-    text-decoration: underline;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-    color: #555;
-}
-
-.dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-
-/* Estilos de la Agenda del Día */
 .bulk-actions-header {
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: flex-end;
+  padding: 8px 0;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
 }
 
 .btn-small-outline {
-    background: white;
-    border: 1px solid var(--primary-blue);
-    color: var(--primary-blue);
-    padding: 5px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: var(--transition);
 }
 
-.btn-small-outline:hover {
-    background: #f0f7ff;
-}
+.btn-small-outline:hover { background: rgba(212,168,67,0.1); }
 
+/* SLOTS DE HORA */
 .hour-slot {
-    display: flex;
-    align-items: center;
-    padding: 8px 10px;
-    border-bottom: 1px solid #f0f0f0;
-    cursor: pointer;
-    transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.15s;
 }
 
-.hour-slot:hover {
-    background-color: #f9f9f9;
-}
+.hour-slot:hover { background: var(--bg-card2); }
 
-.slot-selected {
-    background-color: #e3f2fd; /* Azul claro para selección */
-}
+.slot-selected { background: rgba(212,168,67,0.08); }
 
-.hour-check {
-    margin-left: 10px;
-}
+.hour-label { width: 56px; font-size: 0.82rem; font-weight: 700; color: var(--text-muted); }
+
+.hour-content { flex: 1; min-height: 20px; display: flex; gap: 5px; }
+
+.hour-check { margin-left: 8px; }
 
 .event-pill-large {
-    width: 100%;
-    padding: 8px 12px;
-    border-radius: 6px;
-    color: white;
-    font-size: 0.85rem;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.1s;
+  width: 100%;
+  padding: 7px 12px;
+  border-radius: 6px;
+  color: #000;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s;
 }
 
-.event-pill-large:hover {
-    transform: scale(1.01);
-    filter: brightness(1.05);
-}
+.event-pill-large:hover { filter: brightness(1.1); }
 
-/* Panel inferior flotante */
+/* PANEL BLOQUEO MASIVO */
 .bulk-action-panel {
-    margin-top: 15px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-top: 2px solid var(--primary-blue);
-    border-radius: 0 0 8px 8px;
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--bg-card2);
+  border: 1px solid var(--gold);
+  border-radius: 10px;
 }
 
-.bulk-action-panel h4 {
-    margin: 0 0 10px 0;
-    color: var(--primary-blue);
-    font-size: 0.95rem;
+.bulk-action-panel h4 { color: var(--gold); font-size: 0.88rem; margin-bottom: 10px; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+  color: #000;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  transition: var(--transition);
 }
 
-.full-width {
-    width: 100%;
+.btn-primary:hover { filter: brightness(1.1); }
+.full-width { width: 100%; }
+
+/* MODAL DETALLE */
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 22px;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
 }
 
-/* Z-Index para modal sobre modal */
-.z-high {
-    z-index: 2000;
-}
-
-.modal-body-detail p {
-    margin-bottom: 8px;
-    font-size: 0.95rem;
-}
+.modal-body-detail p { margin-bottom: 8px; font-size: 0.92rem; color: var(--text-muted); }
+.modal-body-detail strong { color: var(--text); }
 
 .desc-box {
-    background: #eee;
-    padding: 10px;
-    border-radius: 6px;
-    font-style: italic;
-    color: #555;
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  padding: 10px;
+  border-radius: 6px;
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.btn-close {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: var(--transition);
+}
+
+.btn-close:hover { border-color: var(--gold); color: var(--gold); }
+
+.form-control {
+  padding: 9px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.88rem;
+  width: 100%;
+}
+
+.form-control:focus { outline: none; border-color: var(--gold); }
+.form-control option { background: var(--bg-card2); }
+
+/* RESPONSIVO MOBILE */
+@media (max-width: 768px) {
+  .calendar-container { flex-direction: column; }
+  .calendar-sidebar { width: 100%; display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; padding: 12px; }
+  .calendar-sidebar .sidebar-title { margin-bottom: 0; }
+  .calendar-day { min-height: 60px; }
+  .day-modal-content { padding: 16px; }
 }
