@@ -3,66 +3,97 @@
 .main-header {
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
-  padding: 0 2rem;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  padding: 0 2rem; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 4px var(--shadow);
 }
 
 .header-left { display: flex; align-items: center; gap: 10px; }
+.logo-text { font-size: 1.2rem; font-weight: 800; color: var(--text); letter-spacing: 0.02em; }
 
-.logo-text {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: 0.02em;
-}
-
-.header-right { display: flex; align-items: center; gap: 12px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
 
 .user-info { text-align: right; }
-.user-name  { display: block; font-weight: 700; font-size: 0.85rem; color: var(--text); }
-.user-role  { display: block; font-size: 0.72rem; color: var(--primary-lit);
-              text-transform: uppercase; letter-spacing: 0.05em; }
+.user-name { display: block; font-weight: 700; font-size: 0.85rem; color: var(--text); }
+.user-role { display: block; font-size: 0.7rem; color: var(--primary-lit);
+             text-transform: uppercase; letter-spacing: 0.05em; }
+
+.btn-theme {
+  background: var(--bg-card2); border: 1px solid var(--border);
+  color: var(--text-muted); width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+}
+.btn-theme:hover { color: var(--primary-lit); border-color: var(--primary-lit); }
 
 .btn-header-action {
-  background: transparent;
-  color: var(--text-muted);
-  padding: 6px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
+  background: transparent; color: var(--text-muted);
+  padding: 6px; border-radius: 8px; display: flex; align-items: center;
   transition: var(--transition);
 }
 .btn-header-action:hover { color: var(--red); }
 
 .btn-ingresar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--primary);
-  color: #fff;
-  padding: 7px 16px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+  background: var(--primary); color: #fff;
+  padding: 7px 16px; border-radius: 8px;
+  font-size: 0.85rem; font-weight: 700;
   transition: var(--transition);
 }
 .btn-ingresar:hover { background: var(--primary-lit); }
 
 .content-area {
-  flex: 1;
-  padding: 2rem;
-  background: var(--bg);
-  max-width: 1280px;
-  width: 100%;
-  margin: 0 auto;
-  box-sizing: border-box;
+  flex: 1; padding: 2rem; background: var(--bg);
+  max-width: 1280px; width: 100%; margin: 0 auto; box-sizing: border-box;
 }
+
+/* ── MODAL LOGIN ── */
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 500; padding: 16px;
+}
+
+.login-modal {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 28px;
+  width: 100%; max-width: 360px;
+  box-shadow: 0 20px 60px var(--shadow);
+}
+
+.login-modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.login-modal-header h3 { font-size: 1rem; font-weight: 700; color: var(--text); }
+.login-modal-header button { background: transparent; color: var(--text-muted); }
+.login-modal-header button:hover { color: var(--text); }
+
+.lm-group { margin-bottom: 14px; }
+.lm-group label {
+  display: block; font-size: 0.75rem; font-weight: 700;
+  color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: 6px;
+}
+.lm-group input {
+  width: 100%; padding: 11px 13px;
+  background: var(--bg-card2); border: 1px solid var(--border);
+  border-radius: 8px; font-size: 0.92rem; color: var(--text);
+  transition: var(--transition);
+}
+.lm-group input:focus { outline: none; border-color: var(--primary-lit);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+
+.lm-error { font-size: 0.82rem; color: var(--red); margin-bottom: 10px; }
+
+.lm-submit {
+  width: 100%; background: var(--primary); color: #fff;
+  padding: 12px; border-radius: 8px; font-weight: 700;
+  font-size: 0.92rem; transition: var(--transition);
+}
+.lm-submit:hover { background: var(--primary-lit); }
+.lm-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
 @media (max-width: 768px) {
   .main-header { padding: 0 1rem; }

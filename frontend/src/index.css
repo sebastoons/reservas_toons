@@ -1,3 +1,4 @@
+/* ── DARK (por defecto) ─── */
 :root {
   --bg:          #0a0f1e;
   --bg-card:     #111827;
@@ -8,13 +9,24 @@
   --border:      #1e293b;
   --text:        #f1f5f9;
   --text-muted:  #94a3b8;
-  --green:       #22c55e;
-  --orange:      #f59e0b;
-  --red:         #ef4444;
-  --blue:        #3b82f6;
-  --purple:      #7c3aed;
-  --gray:        #475569;
-  --transition:  all 0.2s ease;
+  --shadow:      rgba(0,0,0,0.5);
+  --green:  #22c55e; --orange: #f59e0b;
+  --red:    #ef4444; --gray:   #475569;
+  --transition: all 0.2s ease;
+}
+
+/* ── LIGHT ──────────────── */
+[data-theme="light"] {
+  --bg:          #f0f4f8;
+  --bg-card:     #ffffff;
+  --bg-card2:    #e8edf5;
+  --primary:     #2563eb;
+  --primary-lit: #3b82f6;
+  --primary-dim: #1d4ed8;
+  --border:      #d1d9e6;
+  --text:        #0f172a;
+  --text-muted:  #64748b;
+  --shadow:      rgba(0,0,0,0.1);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0;
@@ -25,6 +37,7 @@ body {
   color: var(--text);
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
+  transition: background 0.2s, color 0.2s;
 }
 
 button { cursor: pointer; border: none; outline: none; }
