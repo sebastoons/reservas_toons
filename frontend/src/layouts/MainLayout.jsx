@@ -1,49 +1,38 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-import { Calendar, LogOut } from 'lucide-react'; 
+import { Outlet, useNavigate } from 'react-router-dom';
+import { Calendar, LogOut, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './MainLayout.css';
 
 const MainLayout = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="layout-container">
       <header className="main-header">
         <div className="header-left">
-          <Calendar size={28} />
-          <span className="logo-text">ShiftSync</span>
+          <Calendar size={22} color="var(--gold)" />
+          <span className="logo-text">ServiTrak</span>
         </div>
-        
-        <nav className="nav-menu">
-          {/* El Calendario lo ven todos */}
-          <NavLink to="/dashboard" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
-            Calendario
-          </NavLink>
 
-          {/* Asignaciones: Solo para Técnicos y Admin */}
-          {user?.role !== 'COORD' && (
-             <NavLink to="/asignaciones" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
-               Asignaciones
-             </NavLink>
+        <div className="header-right">
+          {user ? (
+            <>
+              <div className="user-info">
+                <span className="user-name">{user.first_name} {user.last_name}</span>
+                <span className="user-role">{user.role}</span>
+              </div>
+              <button className="btn-header-action" onClick={logout} title="Cerrar sesión">
+                <LogOut size={16} />
+              </button>
+            </>
+          ) : (
+            <button className="btn-ingresar" onClick={() => navigate('/login')}>
+              <LogIn size={15} />
+              Ingresar
+            </button>
           )}
-
-          {/* Reservaciones: Solo para Coordinadores y Admin */}
-          {user?.role !== 'TECH' && (
-            <NavLink to="/reservaciones" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
-              Reservaciones
-            </NavLink>
-          )}
-        </nav>
-
-        <div className="header-right" style={{display:'flex', alignItems:'center', gap:'14px'}}>
-          <div style={{textAlign:'right', fontSize:'0.78rem'}}>
-            <div style={{fontWeight:'700', color:'var(--text)'}}>{user?.first_name} {user?.last_name}</div>
-            <div style={{color:'var(--gold)', fontSize:'0.72rem', textTransform:'uppercase', letterSpacing:'0.05em'}}>{user?.role}</div>
-          </div>
-          <button onClick={logout} style={{background:'transparent', color:'var(--text-muted)', border:'none', cursor:'pointer'}} title="Cerrar Sesión">
-            <LogOut size={18} />
-          </button>
         </div>
       </header>
 

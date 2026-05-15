@@ -1,13 +1,9 @@
-.layout-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
+.layout-container { display: flex; flex-direction: column; min-height: 100vh; }
 
 .main-header {
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
-  padding: 0 1.5rem;
+  padding: 0 2rem;
   height: 60px;
   display: flex;
   align-items: center;
@@ -17,12 +13,7 @@
   z-index: 100;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--gold);
-}
+.header-left { display: flex; align-items: center; gap: 10px; }
 
 .logo-text {
   font-size: 1.2rem;
@@ -31,41 +22,50 @@
   letter-spacing: 0.02em;
 }
 
-.nav-menu {
-  display: flex;
-  gap: 4px;
-}
+.header-right { display: flex; align-items: center; gap: 12px; }
 
-.nav-item {
+.user-info { text-align: right; }
+.user-name  { display: block; font-weight: 700; font-size: 0.85rem; color: var(--text); }
+.user-role  { display: block; font-size: 0.72rem; color: var(--primary-lit);
+              text-transform: uppercase; letter-spacing: 0.05em; }
+
+.btn-header-action {
+  background: transparent;
   color: var(--text-muted);
-  text-decoration: none;
-  font-size: 0.88rem;
-  font-weight: 500;
-  padding: 6px 14px;
+  padding: 6px;
   border-radius: 8px;
+  display: flex;
+  align-items: center;
   transition: var(--transition);
 }
+.btn-header-action:hover { color: var(--red); }
 
-.nav-item:hover {
-  color: var(--text);
-  background: var(--bg-card2);
-}
-
-.nav-item.active {
-  color: var(--gold);
-  background: rgba(212,168,67,0.1);
+.btn-ingresar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary);
+  color: #fff;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
   font-weight: 700;
+  transition: var(--transition);
 }
+.btn-ingresar:hover { background: var(--primary-lit); }
 
 .content-area {
   flex: 1;
-  padding: 1.5rem;
+  padding: 2rem;
   background: var(--bg);
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .main-header { padding: 0 1rem; }
-  .logo-text { font-size: 1rem; }
-  .nav-item { padding: 6px 10px; font-size: 0.82rem; }
   .content-area { padding: 1rem; }
+  .logo-text { font-size: 1rem; }
 }

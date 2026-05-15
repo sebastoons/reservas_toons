@@ -17,7 +17,7 @@ const Login = () => {
         if (authError) {
             setError('Credenciales incorrectas o error de conexión');
         } else {
-            navigate('/dashboard');
+            navigate('/');
         }
     };
 
