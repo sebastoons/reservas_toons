@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { ChevronLeft, ChevronRight, ArrowLeft, X, CalendarX, CalendarCheck } from 'lucide-react';
 import './CalendarPage.css';
 
-const MORNING   = ["08:00","09:00","10:00","11:00"];
-const AFTERNOON = ["12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"];
+const MORNING   = ["08:00","09:00","10:00","11:00","12:00"];
+const AFTERNOON = ["13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"];
 const ALL_HOURS = [...MORNING, ...AFTERNOON];
 const DAY_NAMES = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 const BLOCK_TYPES = ['BLOQUEO','VACACIONES'];

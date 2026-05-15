@@ -7,28 +7,40 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icons/*.png'],
+      injectRegister: 'auto',
+      includeAssets: ['icons/*.png'],
       manifest: {
-        name: 'Reservas Toons',
-        short_name: 'ReservasToons',
-        description: 'Sistema de reservas y agenda de servicios técnicos',
-        theme_color: '#1565c0',
-        background_color: '#ffffff',
+        name: 'ServiTrak',
+        short_name: 'ServiTrak',
+        description: 'Sistema de agenda y disponibilidad de técnicos',
+        theme_color: '#2563eb',
+        background_color: '#0a0f1e',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/login',
+        start_url: '/',
+        scope: '/',
         icons: [
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // Cachea todos los assets del build
+        globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+        // Limpia caches viejos automáticamente al actualizar
+        cleanupOutdatedCaches: true,
+        // Activa el nuevo SW inmediatamente sin esperar al cierre de tabs
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
             handler: 'NetworkFirst',
-            options: { cacheName: 'supabase-api', networkTimeoutSeconds: 10 }
+            options: {
+              cacheName: 'supabase-api',
+              networkTimeoutSeconds: 8,
+              expiration: { maxEntries: 50, maxAgeSeconds: 300 }
+            }
           }
         ]
       }
