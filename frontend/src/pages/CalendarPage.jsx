@@ -33,6 +33,7 @@ const CalendarPage = () => {
     ];
 
     useEffect(() => {
+        if (!user?.id) return;
         const loadData = async () => {
             const { data, error } = await supabase
                 .from('appointments')
@@ -41,7 +42,7 @@ const CalendarPage = () => {
             if (!error) setAppointments(data);
         };
         loadData();
-    }, [reloadKey, user.id]);
+    }, [reloadKey, user?.id]);
 
     // SOLUCIÓN 2: Función auxiliar para cerrar el modal y limpiar datos AL MISMO TIEMPO.
     // Esto elimina la necesidad del segundo useEffect que causaba el error en la línea 54.
