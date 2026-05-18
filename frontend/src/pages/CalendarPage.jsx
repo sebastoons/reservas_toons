@@ -207,6 +207,19 @@ function TechSchedule({ tech, onBack, canEdit }) {
         </div>
       </div>
 
+      {/* MES Y AÑO */}
+      <div className="week-month-bar">
+        <span className="week-month-label">
+          {week[0].toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+          {week[0].getMonth() !== week[6].getMonth()
+            ? ` — ${week[6].toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`
+            : ''}
+        </span>
+        <span className="week-range-label">
+          {week[0].getDate()} – {week[6].getDate()} de {week[6].toLocaleDateString('es-ES', { month: 'long' })}
+        </span>
+      </div>
+
       {/* SEMANA */}
       <div className="week-nav">
         <button className="nav-btn" onClick={() => { const d=new Date(weekBase); d.setDate(d.getDate()-7); setWeekBase(d); }}>
